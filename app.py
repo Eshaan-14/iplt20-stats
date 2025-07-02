@@ -384,3 +384,23 @@ with tab5: # Top Wicket Takers
     st.altair_chart(chart_wickets, use_container_width=True)
 
     st.success("🎯 These bowlers have consistently delivered crucial breakthroughs!")
+
+    # --- Footer Section ---
+st.markdown("""
+    <div class="footer" style="
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #D0D0F6; /* Match main background */
+        color: #333333; /* Match main text color */
+        text-align: center;
+        padding: 10px 0;
+        font-size: 0.9em;
+        font-weight: bold;
+    ">
+        Developed with 💙 by <a href="https://github.com/Eshaan-14" target="_blank">Eshaan-14</a> | 
+        Repository: <a href="https://github.com/Eshaan-14/iplt20-stats" target="_blank">iplt20-stats</a> | 
+        Contact: <a href="mailto:eshaanmane954386@gmail.com">eshaanmane954386@gmail.com</a>
+    </div>
+""", unsafe_allow_html=True)
