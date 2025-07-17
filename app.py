@@ -706,69 +706,69 @@ with tab6: # Individual Player Stats
         ]['match_id'].nunique()
 
         # Matches Won (Revised Logic - compatible with older Pandas)
-    matches_won = 0
-    if matches_played > 0 and not df_filtered.empty:
-    # Get all deliveries where the player was involved
-    player_deliveries_for_team = df_delivery_filtered[
-        (df_delivery_filtered['batter'] == selected_player) |
-        (df_delivery_filtered['bowler'] == selected_player) |
-        (df_delivery_filtered['non_striker'] == selected_player) |
-        (df_delivery_filtered['fielder'] == selected_player)
-    ].copy()
+        matches_won = 0
+        if matches_played > 0 and not df_filtered.empty:
+        # Get all deliveries where the player was involved
+        player_deliveries_for_team = df_delivery_filtered[
+            (df_delivery_filtered['batter'] == selected_player) |
+            (df_delivery_filtered['bowler'] == selected_player) |
+            (df_delivery_filtered['non_striker'] == selected_player) |
+            (df_delivery_filtered['fielder'] == selected_player)
+        ].copy()
 
-    # For each match, find the team the player was on.
-    # Use .agg() to get a list of unique teams and then take the first non-null one.
-    player_teams_in_matches_raw = player_deliveries_for_team.groupby('match_id').agg(
-        batting_team_in_match=('batting_team_short', lambda x: x.dropna().iloc[0] if not x.dropna().empty else np.nan),
-        bowling_team_in_match=('bowling_team_short', lambda x: x.dropna().iloc[0] if not x.dropna().empty else np.nan)
-    ).reset_index()
+        # For each match, find the team the player was on.
+        # Use .agg() to get a list of unique teams and then take the first non-null one.
+        player_teams_in_matches_raw = player_deliveries_for_team.groupby('match_id').agg(
+            batting_team_in_match=('batting_team_short', lambda x: x.dropna().iloc[0] if not x.dropna().empty else np.nan),
+            bowling_team_in_match=('bowling_team_short', lambda x: x.dropna().iloc[0] if not x.dropna().empty else np.nan)
+        ).reset_index()
 
-    # Consolidate player's team for each match
-    player_teams_in_matches_raw['player_team_in_match'] = player_teams_in_matches_raw.apply(
-        lambda row: row['batting_team_in_match'] if pd.notna(row['batting_team_in_match']) else row['bowling_team_in_match'],
-        axis=1
-    )
-            
-    # Select only the necessary columns for merging and drop NaNs
-    player_teams_in_matches = player_teams_in_matches_raw[['match_id', 'player_team_in_match']].dropna(subset=['player_team_in_match'])
-
-    # Filter out any NaN teams if a player was involved in a match but their team couldn't be determined
-    player_teams_in_matches = player_teams_in_matches.dropna(subset=['player_team_in_match'])
-
-    if not player_teams_in_matches.empty:
-        # Merge with the filtered matches DataFrame to get the winner of each match
-        merged_matches_winners = pd.merge(
-            player_teams_in_matches,
-            df_filtered[['id', 'winner_short']],
-            left_on='match_id',
-            right_on='id',
-            how='inner'
+        # Consolidate player's team for each match
+        player_teams_in_matches_raw['player_team_in_match'] = player_teams_in_matches_raw.apply(
+            lambda row: row['batting_team_in_match'] if pd.notna(row['batting_team_in_match']) else row['bowling_team_in_match'],
+            axis=1
         )
+                
+        # Select only the necessary columns for merging and drop NaNs
+        player_teams_in_matches = player_teams_in_matches_raw[['match_id', 'player_team_in_match']].dropna(subset=['player_team_in_match'])
 
-        # Count matches where the player's team won
-        matches_won = merged_matches_winners[
-            merged_matches_winners['player_team_in_match'] == merged_matches_winners['winner_short']
-        ].shape[0]
-        # Most Run Outs (Effected)
-        most_run_outs_effected = df_delivery_filtered[
-            (df_delivery_filtered['dismissal_kind'] == 'run out') &
-            (df_delivery_filtered['fielder'] == selected_player)
-        ].shape[0]
+        # Filter out any NaN teams if a player was involved in a match but their team couldn't be determined
+        player_teams_in_matches = player_teams_in_matches.dropna(subset=['player_team_in_match'])
 
-        # Most Catches
-        most_catches = df_delivery_filtered[
-            (df_delivery_filtered['dismissal_kind'] == 'caught') &
-            (df_delivery_filtered['fielder'] == selected_player)
-        ].shape[0]
+        if not player_teams_in_matches.empty:
+            # Merge with the filtered matches DataFrame to get the winner of each match
+            merged_matches_winners = pd.merge(
+                player_teams_in_matches,
+                df_filtered[['id', 'winner_short']],
+                left_on='match_id',
+                right_on='id',
+                how='inner'
+            )
 
-        col_g1, col_g2, col_g3 = st.columns(3)
-        col_g1.metric("Player of the Match Awards", player_of_match_awards)
-        col_g2.metric("Matches Played", matches_played)
-        col_g3.metric("Matches Won", matches_won)
+            # Count matches where the player's team won
+            matches_won = merged_matches_winners[
+                merged_matches_winners['player_team_in_match'] == merged_matches_winners['winner_short']
+            ].shape[0]
+            # Most Run Outs (Effected)
+            most_run_outs_effected = df_delivery_filtered[
+                (df_delivery_filtered['dismissal_kind'] == 'run out') &
+                (df_delivery_filtered['fielder'] == selected_player)
+            ].shape[0]
 
-        col_g4, col_g5 = st.columns(2)
-        col_g4.metric("Run Outs (as Fielder)", most_run_outs_effected)
-        col_g5.metric("Catches (as Fielder)", most_catches)
+            # Most Catches
+            most_catches = df_delivery_filtered[
+                (df_delivery_filtered['dismissal_kind'] == 'caught') &
+                (df_delivery_filtered['fielder'] == selected_player)
+            ].shape[0]
+
+            col_g1, col_g2, col_g3 = st.columns(3)
+            col_g1.metric("Player of the Match Awards", player_of_match_awards)
+            col_g2.metric("Matches Played", matches_played)
+            col_g3.metric("Matches Won", matches_won)
+
+            col_g4, col_g5 = st.columns(2)
+            col_g4.metric("Run Outs (as Fielder)", most_run_outs_effected)
+            col_g5.metric("Catches (as Fielder)", most_catches)
         
 with tab7: # NEW TAB: Player Matchups (for Dismissals/Wickets and Runs/SR)
     st.header("⚔️ Player Matchups: Head-to-Head Analysis")
