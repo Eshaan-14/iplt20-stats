@@ -709,12 +709,12 @@ with tab6: # Individual Player Stats
         matches_won = 0
         if matches_played > 0 and not df_filtered.empty:
         # Get all deliveries where the player was involved
-        player_deliveries_for_team = df_delivery_filtered[
-            (df_delivery_filtered['batter'] == selected_player) |
-            (df_delivery_filtered['bowler'] == selected_player) |
-            (df_delivery_filtered['non_striker'] == selected_player) |
-            (df_delivery_filtered['fielder'] == selected_player)
-        ].copy()
+            player_deliveries_for_team = df_delivery_filtered[
+                (df_delivery_filtered['batter'] == selected_player) |
+                (df_delivery_filtered['bowler'] == selected_player) |
+                (df_delivery_filtered['non_striker'] == selected_player) |
+                (df_delivery_filtered['fielder'] == selected_player)
+            ].copy()
 
         # For each match, find the team the player was on.
         # Use .agg() to get a list of unique teams and then take the first non-null one.
