@@ -706,8 +706,8 @@ with tab6: # Individual Player Stats
         ]['match_id'].nunique()
 
         # Matches Won (Revised Logic - compatible with older Pandas)
-matches_won = 0
-if matches_played > 0 and not df_filtered.empty:
+    matches_won = 0
+    if matches_played > 0 and not df_filtered.empty:
     # Get all deliveries where the player was involved
     player_deliveries_for_team = df_delivery_filtered[
         (df_delivery_filtered['batter'] == selected_player) |
